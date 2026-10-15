@@ -1,0 +1,209 @@
+:root {
+  --pink: #ff4fa3;
+  --pink-soft: #ffd6ea;
+  --black: #0b0b0d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--black);
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+.where {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  padding: 8px 14px;
+  background: rgba(11, 11, 13, 0.82);
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  color: var(--pink-soft);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.where .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 10px var(--pink);
+}
+
+.crosshair {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--pink);
+  pointer-events: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(11, 11, 13, 0.6);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  z-index: 10;
+}
+
+.card {
+  max-width: 440px;
+  margin: 16px;
+  padding: 32px;
+  background: var(--black);
+  border: 2px solid var(--pink);
+  border-radius: 18px;
+  color: #fff;
+  box-shadow: 0 0 40px rgba(255, 79, 163, 0.4);
+}
+
+.kicker {
+  color: var(--pink);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.card h1 {
+  margin: 6px 0 8px;
+  font-size: 48px;
+  font-family: Georgia, serif;
+}
+
+.sub {
+  color: #d9d9de;
+  line-height: 1.45;
+  margin: 0 0 20px;
+}
+
+.go {
+  width: 100%;
+  padding: 14px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--pink);
+  color: var(--black);
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.go.alt {
+  margin-top: 10px;
+  background: transparent;
+  color: var(--pink);
+  border: 1px solid var(--pink);
+}
+
+.keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-top: 18px;
+  color: #bdbdc4;
+  font-size: 13px;
+}
+
+.keys b {
+  color: var(--pink-soft);
+}
+
+/* ---------- phone controls */
+.touchlayer {
+  position: fixed;
+  inset: 0;
+  z-index: 4;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.stick {
+  position: absolute;
+  left: 24px;
+  bottom: 32px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  border: 2px solid var(--pink);
+  background: rgba(11, 11, 13, 0.45);
+  display: grid;
+  place-items: center;
+  touch-action: none;
+}
+
+.knob {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--pink);
+  box-shadow: 0 0 18px rgba(255, 79, 163, 0.7);
+  pointer-events: none;
+}
+
+.jump,
+.pause {
+  position: absolute;
+  background: rgba(11, 11, 13, 0.75);
+  color: var(--pink);
+  border: 1px solid var(--pink);
+  border-radius: 999px;
+  font-size: 14px;
+  touch-action: none;
+}
+
+.jump {
+  right: 24px;
+  bottom: 40px;
+  width: 76px;
+  height: 76px;
+  font-weight: 700;
+}
+
+.pause {
+  left: 50%;
+  top: 16px;
+  transform: translateX(-50%);
+  padding: 6px 16px;
+}
+
+.touchhint {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8px;
+  text-align: center;
+  color: var(--pink-soft);
+  font-size: 12px;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@media (pointer: coarse), (max-width: 700px) {
+  .where {
+    top: 56px;
+    font-size: 12px;
+  }
+  .card h1 {
+    font-size: 38px;
+  }
+}
