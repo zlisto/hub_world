@@ -228,3 +228,8 @@ body,
   0%, 70% { opacity: 1; }
   100% { opacity: 0.35; }
 }
+
+/* view follows the mouse before the first click: hide the cursor over the world so it feels like mouse-look */
+.freelook canvas {
+  cursor: none;
+}

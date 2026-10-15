@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls.js'
-import { EYE, SPAWN, collide, locate } from './layout.js'
+import { EYE, SPAWN, SPEED, collide, locate } from './layout.js'
 
 // First-person walking, the same controls as Darul Kebab and Yale.
 // PC: WASD move, mouse look, Shift run, Space jump, C crouch.
@@ -11,6 +11,7 @@ const CROUCH_EYE = 1.05
 const JUMP_SPEED = 4.2
 const GRAVITY = 12
 const LOOK_SPEED = 0.005 // radians per touch pixel
+const MOUSE_SPEED = 0.002 // radians per mouse pixel, the same as PointerLockControls
 
 export default function Player({ lockRef, touchRef, freeRef, onLock, onWhere }) {
   const { camera, gl } = useThree()
@@ -41,10 +42,22 @@ export default function Player({ lockRef, touchRef, freeRef, onLock, onWhere }) 
     }
     const up = (e) => (keys.current[e.code] = false)
     const blur = () => (keys.current = {})
+    // Arrived through a portal (freeRef): browsers only lock the mouse after a click, so until then
+    // the view follows the mouse as it moves over the page. The first click locks it for real.
+    const look = (e) => {
+      if (!freeRef?.current || controls.isLocked) return
+      const cap = (v) => Math.max(-60, Math.min(60, v)) // the first event after a page load can jump
+      euler.setFromQuaternion(camera.quaternion)
+      euler.y -= cap(e.movementX) * MOUSE_SPEED
+      euler.x = Math.max(-1.45, Math.min(1.45, euler.x - cap(e.movementY) * MOUSE_SPEED))
+      camera.quaternion.setFromEuler(euler)
+    }
     window.addEventListener('keydown', down)
     window.addEventListener('keyup', up)
     window.addEventListener('blur', blur)
+    window.addEventListener('mousemove', look)
     return () => {
+      window.removeEventListener('mousemove', look)
       controls.removeEventListener('lock', on)
       controls.removeEventListener('unlock', off)
       controls.dispose()
@@ -52,7 +65,7 @@ export default function Player({ lockRef, touchRef, freeRef, onLock, onWhere }) 
       window.removeEventListener('keyup', up)
       window.removeEventListener('blur', blur)
     }
-  }, [camera, controls, lockRef, onLock])
+  }, [camera, controls, lockRef, onLock, freeRef, euler])
 
   useFrame((_, rawDt) => {
     const dt = Math.min(rawDt, 0.05)
@@ -96,7 +109,7 @@ export default function Player({ lockRef, touchRef, freeRef, onLock, onWhere }) 
         mx /= l
         mz /= l
       }
-      const speed = active && k.KeyC ? 1.8 : sprint ? 6 : 3.4
+      const speed = active && k.KeyC ? 1.8 : sprint ? SPEED.run : SPEED.walk
       const pos = collide({ x: camera.position.x + mx * speed * dt, z: camera.position.z + mz * speed * dt })
       camera.position.x = pos.x
       camera.position.z = pos.z

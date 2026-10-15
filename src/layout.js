@@ -5,6 +5,7 @@ import { ring, NAME } from './ring.js'
 // world in the registry. Units are meters; +x = east, -z = north.
 
 export const H = 6 // no ceiling, but the player code wants a height
+export const SPEED = { walk: 6, run: 10 } // meters per second; Shift runs
 export const EYE = 1.65
 export const R_PLAYER = 0.35
 export const FOUNTAIN_R = 1.9
