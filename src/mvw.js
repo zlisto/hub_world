@@ -34,8 +34,9 @@ export const presence = (where) => post({ type: 'presence', where })
 
 // walk through a portal. `back` is the spawn here to return to when you press Back.
 export function navigate(href, spawn, back) {
-  document.exitPointerLock?.()
-  if (inBrowser) return post({ type: 'navigate', href, spawn, back })
+  // don't release the mouse here: that would flash the world's pause menu on the way out.
+  // Leaving the page (or the browser swapping the frame) releases it anyway.
+  if (inBrowser) return post({ type: 'navigate', href, spawn, back }) // the browser waits for the whoosh
   const u = new URL(href)
   if (spawn) u.searchParams.set('spawn', spawn)
   setTimeout(() => (location.href = u.toString()), 450) // let the portal whoosh play

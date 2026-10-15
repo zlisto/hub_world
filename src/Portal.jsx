@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import { inBrowser, navigate } from './mvw.js'
+import { navigate } from './mvw.js'
 import { fadeOut, whoosh } from './audio.js'
 
 // A glowing doorway to another world (mvw/0.1). Walk through it and you go to `href`,
@@ -89,7 +89,7 @@ export default function Portal({ x, z, rot = 0, w = 2, h = 2.6, href, spawn, bac
     if (armed.current && !fired.current && Math.abs(along) < w / 2 && Math.abs(depth) < 0.45 && camera.position.y < h + 0.5) {
       fired.current = true
       fadeOut()
-      if (!inBrowser) whoosh() // inside the Metaverse Browser, the browser plays it
+      whoosh() // the world plays it: it has the visitor's clicks, so its audio is always allowed
       navigate(href, spawn, back)
       setTimeout(() => (fired.current = armed.current = false), 1500)
     }

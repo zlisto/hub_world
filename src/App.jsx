@@ -5,7 +5,7 @@ import Player from './Player.jsx'
 import TouchControls from './TouchControls.jsx'
 import { EYE, SPAWN } from './layout.js'
 import { NAME } from './ring.js'
-import { onIdentity, presence } from './mvw.js'
+import { onIdentity, presence, spawnId } from './mvw.js'
 
 const BLURB = 'A plaza with a portal to every world in the Metaverse Web registry. Pick one and walk through.'
 
@@ -13,7 +13,15 @@ export default function App() {
   const [locked, setLocked] = useState(false)
   const [where, setWhere] = useState('')
   const lockRef = useRef()
-  const onLock = useCallback((v) => setLocked(v), [])
+  const onLock = useCallback((v) => {
+    setLocked(v)
+    if (v) setFree(false) // the mouse is locked now; Esc brings back the menu as a pause screen
+  }, [])
+  // Arriving through a portal (the address has ?spawn=), skip the start menu and drop straight in:
+  // the keys work right away, and the first click locks the mouse for looking around.
+  const [free, setFree] = useState(() => spawnId !== null)
+  const freeRef = useRef(free)
+  freeRef.current = free
   // tell the Metaverse Browser where you are whenever the area changes (mvw/0.1 `presence`)
   const onWhere = useCallback((w) => {
     setWhere(w)
@@ -32,13 +40,24 @@ export default function App() {
     touchRef.current.move = [0, 0]
     setTouchOn(on)
   }
-  const playing = locked || touchOn
+  const playing = locked || touchOn || free
+  useEffect(() => {
+    if (!free) return
+    if (isTouch) {
+      setTouch(true) // phones: the joystick needs no click, so just turn it on
+      setFree(false)
+      return
+    }
+    const click = (e) => !e.target.closest('button') && lockRef.current?.()
+    addEventListener('mousedown', click)
+    return () => removeEventListener('mousedown', click)
+  }, [free]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
       <Canvas camera={{ fov: 72, near: 0.05, far: 200, position: [SPAWN.x, EYE, SPAWN.z] }} dpr={[1, 1.75]}>
         <World />
-        <Player lockRef={lockRef} touchRef={touchRef} onLock={onLock} onWhere={onWhere} />
+        <Player lockRef={lockRef} freeRef={freeRef} touchRef={touchRef} onLock={onLock} onWhere={onWhere} />
       </Canvas>
 
       <div className="where">
@@ -46,6 +65,7 @@ export default function App() {
         {where}
       </div>
       {playing && <div className="crosshair" />}
+      {free && <div className="hint">Click to look around · WASD to walk</div>}
       {touchOn && <TouchControls touchRef={touchRef} onPause={() => setTouch(false)} />}
 
       {!playing && (
