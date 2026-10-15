@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import Portal from './Portal.jsx'
-import { FOUNTAIN_R, PLAZA_R, RING_R, SLOTS, names } from './layout.js'
+import { FOUNTAIN_R, PLAZA_R, RING_R, SLOTS, names, arrival } from './layout.js'
 import { NAME } from './ring.js'
 
 const CYL = new THREE.CylinderGeometry(1, 1, 1, 40)
@@ -191,6 +191,8 @@ export default function World() {
         .then((m) => {
           if (!live || m?.protocol !== 'mvw/0.1') throw new Error('not an mvw/0.1 manifest')
           if (typeof m.name === 'string' && m.name) names[s.id] = m.name.slice(0, 40)
+          // land in front of the world's own portal back here when it has one (PROTOCOL.md section 7)
+          arrival[s.id] = m.spawns && 'from_square' in m.spawns ? 'from_square' : 'default'
           setState((v) => ({ ...v, [s.id]: 'ok' }))
           bump((n) => n + 1)
         })
@@ -228,7 +230,7 @@ export default function World() {
 
       {SLOTS.map((s) =>
         state[s.id] === 'ok' ? (
-          <Portal key={s.id} x={s.x} z={s.z} rot={s.rot} href={s.address} spawn="default" back={s.spawnId} label={names[s.id]} sub={new URL(s.address).host} />
+          <Portal key={s.id} x={s.x} z={s.z} rot={s.rot} href={s.address} spawn={arrival[s.id]} back={s.spawnId} label={names[s.id]} sub={new URL(s.address).host} />
         ) : (
           <Offline key={s.id} s={s} state={state[s.id]} />
         ),

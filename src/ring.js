@@ -29,7 +29,7 @@ export function ring(registry) {
 }
 
 // the square's manifest (PROTOCOL.md section 1), generated so it always matches the ring
-export function hubManifest(registry) {
+export function hubManifest(registry, arrival = {}) {
   const { slots } = ring(registry)
   return {
     protocol: 'mvw/0.1',
@@ -44,7 +44,7 @@ export function hubManifest(registry) {
       id: `to_${s.id}`,
       label: s.name,
       href: s.address,
-      spawn: 'default',
+      spawn: arrival[s.id] ?? 'default',
       where: `The ${s.compass} portal in the ring around the plaza`,
     })),
   }

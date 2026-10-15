@@ -18,4 +18,6 @@ Open http://localhost:5178/, or type `localhost:5178` into the Metaverse Browser
 - The square's own manifest is generated from the registry by a small plugin in `vite.config.js`: served live in development, and written to `dist/.well-known/metaverse.json` on build. Its portals always match the ring.
 - `mvw.js`, `Portal.jsx`, `Player.jsx` and `TouchControls.jsx` are the same as in `https://github.com/zlisto/world_starter`.
 
-The ring is built from `registry.json`, a copy of the registry. The deploy workflow downloads the latest registry before every build and also runs once a day, so a world merged into the registry gets its portal here within a day.
+Every time the square opens it reads the [registry](https://github.com/zlisto/metaverse_registry) live from GitHub (`src/registry.js`), so a world merged there gets its portal within minutes, with no rebuild. `registry.json` is the fallback copy, refreshed by the deploy (which also runs daily) and used if GitHub can't be reached.
+
+Each portal lands you at the destination world's `from_square` spawn when its manifest has one (in front of its own portal back here), otherwise at `default`.

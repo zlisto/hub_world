@@ -2,9 +2,9 @@
   "registry": "mvw/0.1",
   "worlds": [
     {
-      "id": "yale_som",
-      "name": "Yale SOM · Evans Hall, Floor 2",
-      "address": "https://zlisto.github.io/yale_som_virtual/",
+      "id": "evans_hall_3d",
+      "name": "Yale SOM · Evans Hall",
+      "address": "https://zlisto.github.io/evans-hall-3d/",
       "owner": "zlisto"
     },
     {

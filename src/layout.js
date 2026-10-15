@@ -1,6 +1,5 @@
 import { pickSpawn } from './mvw.js'
 import { ring, NAME } from './ring.js'
-import registry from '../registry.json' // a copy of the registry; the deploy refreshes it daily
 
 // Metaverse Square: a round plaza with a fountain in the middle and a ring of portals, one per
 // world in the registry. Units are meters; +x = east, -z = north.
@@ -9,17 +8,24 @@ export const H = 6 // no ceiling, but the player code wants a height
 export const EYE = 1.65
 export const R_PLAYER = 0.35
 export const FOUNTAIN_R = 1.9
-export const { slots: SLOTS, R: RING_R, plazaR: PLAZA_R } = ring(registry)
-
-// Arrival points: south of the fountain, plus one in front of each portal so Back lands you there
-export const SPAWNS = {
-  default: { x: 0, z: 5.5, yaw: 0 },
-  ...Object.fromEntries(SLOTS.map((s) => [s.spawnId, s.spawn])),
-}
-export const SPAWN = pickSpawn(SPAWNS)
-
+// The ring depends on the registry, which main.jsx loads (live from GitHub, or the bundled copy)
+// before the world starts, so these are filled in by initLayout() first thing.
+export let SLOTS, RING_R, PLAZA_R, SPAWNS, SPAWN
 // world names as their manifests report them (filled in by World.jsx once fetched)
-export const names = Object.fromEntries(SLOTS.map((s) => [s.id, s.name]))
+export const names = {}
+// which spawn to arrive at in each world: its `from_square` if it has one, else `default`
+export const arrival = {}
+
+export function initLayout(registry) {
+  ;({ slots: SLOTS, R: RING_R, plazaR: PLAZA_R } = ring(registry))
+  // arrival points: south of the fountain, plus one in front of each portal so Back lands you there
+  SPAWNS = {
+    default: { x: 0, z: 5.5, yaw: 0 },
+    ...Object.fromEntries(SLOTS.map((s) => [s.spawnId, s.spawn])),
+  }
+  SPAWN = pickSpawn(SPAWNS)
+  for (const s of SLOTS) names[s.id] = s.name
+}
 
 // stay on the plaza and out of the fountain
 export function collide(pos) {
