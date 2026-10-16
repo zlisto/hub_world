@@ -3,11 +3,13 @@ import { Canvas } from '@react-three/fiber'
 import World from './World.jsx'
 import Player from './Player.jsx'
 import TouchControls from './TouchControls.jsx'
+import TalkAim from './sage/TalkAim.jsx'
+import WorldsPanel from './sage/WorldsPanel.jsx'
 import { EYE, SPAWN } from './layout.js'
-import { NAME } from './ring.js'
 import { onIdentity, presence } from './mvw.js'
+import { NAME } from './ring.js'
 
-const BLURB = 'A plaza with a portal to every world in the Metaverse Web registry. Pick one and walk through.'
+const BLURB = 'A plaza with a portal to every world in the Metaverse Web registry. Walk through one, or ask Labubuldore, the sage by the fountain, to show you them all.'
 
 export default function App() {
   const [locked, setLocked] = useState(false)
@@ -18,6 +20,8 @@ export default function App() {
     if (v) setFree(false) // the mouse is locked now; Esc brings back the menu as a pause screen
   }, [])
   // Every arrival, portal or not, starts on the menu: one clear click to walk in and lock the mouse.
+  // `free` is a walking-without-the-mouse-locked state, used after closing Labubuldore's chat (keys
+  // work, the view follows the mouse, and the next click locks it).
   const [free, setFree] = useState(false)
   const freeRef = useRef(free)
   freeRef.current = free
@@ -39,26 +43,59 @@ export default function App() {
     touchRef.current.move = [0, 0]
     setTouchOn(on)
   }
+  // talking to Labubuldore: aim the crosshair at him and click or press E (phones: tap Talk).
+  // The mouse is released so you can pick a world; closing the chat puts you back in.
+  const [aim, setAim] = useState(null)
+  const [talking, setTalking] = useState(false)
+  const startTalk = useCallback(() => {
+    setFree(false)
+    setTalking(true)
+    document.exitPointerLock?.()
+  }, [])
+  // closing the chat goes straight back to mouse-look. Closing with × or a click outside does it at
+  // once; Esc doesn't count as a click for the browser, so then the next click grabs the mouse.
+  const endTalk = useCallback(() => {
+    setTalking(false)
+    if (touchOn) return
+    setFree(true) // keys work right away, whether or not the mouse grab below is allowed
+    lockRef.current?.()
+  }, [touchOn])
+
   useEffect(() => {
     document.body.classList.toggle('freelook', free)
   }, [free])
-  const playing = locked || touchOn || free
+  const playing = locked || touchOn || free || talking
   useEffect(() => {
-    if (!free) return
+    if (!free || talking) return
     if (isTouch) {
       setTouch(true) // phones: the joystick needs no click, so just turn it on
       setFree(false)
       return
     }
-    const click = (e) => !e.target.closest('button') && lockRef.current?.()
+    // a click here always grabs the mouse for looking around, even with Labubuldore in the crosshair;
+    // once the mouse is grabbed, clicking him (or pressing E) starts the chat
+    const click = (e) => !e.target.closest('button, a, .guide') && lockRef.current?.()
     addEventListener('mousedown', click)
     return () => removeEventListener('mousedown', click)
-  }, [free]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [free, talking]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // while chatting, a click anywhere outside the chat closes it and gives the mouse back to looking
+  // around (the conversation is kept, so talking to him again picks up where you left off)
+  useEffect(() => {
+    if (!talking || touchOn) return
+    const clickOut = (e) => {
+      if (e.button !== 0 || e.target.closest('.guide, button, a')) return
+      endTalk() // and back to mouse-look
+    }
+    addEventListener('mousedown', clickOut)
+    return () => removeEventListener('mousedown', clickOut)
+  }, [talking, touchOn, endTalk])
 
   return (
     <>
       <Canvas camera={{ fov: 72, near: 0.05, far: 200, position: [SPAWN.x, EYE, SPAWN.z] }} dpr={[1, 1.75]}>
-        <World />
+        <World talking={talking} onTalk={startTalk} />
+        <TalkAim enabled={playing && !talking} onAim={setAim} onTalk={startTalk} />
         <Player lockRef={lockRef} freeRef={freeRef} touchRef={touchRef} onLock={onLock} onWhere={onWhere} />
       </Canvas>
 
@@ -67,7 +104,13 @@ export default function App() {
         {where}
       </div>
       {playing && <div className="crosshair" />}
-      {free && <div className="hint">Move the mouse to look · click to lock it · WASD to walk</div>}
+      {free && !talking && <div className="hint">Move the mouse to look · click to lock it · WASD to walk</div>}
+      {aim && playing && !talking && (
+        <div className="talkhint">
+          {touchOn ? <button onClick={startTalk}>💬 Talk to Labubuldore</button> : locked ? 'Click or press E to talk to Labubuldore' : 'Press E to talk to Labubuldore'}
+        </div>
+      )}
+      {talking && <WorldsPanel visitor={me?.name} back="by_labubuldore" onClose={endTalk} />}
       {touchOn && <TouchControls touchRef={touchRef} onPause={() => setTouch(false)} />}
 
       {!playing && (
@@ -102,6 +145,7 @@ export default function App() {
                   <span><b>Shift</b> run</span>
                   <span><b>Space</b> jump</span>
                   <span><b>C</b> crouch</span>
+                  <span><b>E</b> talk</span>
                   <span><b>Esc</b> pause</span>
                 </>
               )}

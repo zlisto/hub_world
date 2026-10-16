@@ -8,8 +8,8 @@ export const NAME = 'Metaverse Square'
 
 export function ring(registry) {
   const worlds = registry.worlds.filter((w) => w.id !== SELF)
-  const n = Math.max(worlds.length, 3)
-  const R = Math.max(9, n * 0.6) // the ring grows as the registry does, keeping portals ~3 m apart
+  const n = Math.max(worlds.length, 6) // at least 6 slots, so a few worlds don't bunch up
+  const R = Math.max(12, n * 0.75) // the ring grows as the registry does, keeping portals ~4.5 m apart
   const slots = worlds.map((w, i) => {
     const a = (i / n) * Math.PI * 2 // 0 = north, going clockwise seen from above
     const x = Math.sin(a) * R

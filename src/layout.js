@@ -22,11 +22,18 @@ export function initLayout(registry) {
   // arrival points: south of the fountain, plus one in front of each portal so Back lands you there
   SPAWNS = {
     default: { x: 0, z: 5.5, yaw: 0 },
+    // in front of Labubuldore, facing him: Back from a world he sent you to lands you here
+    by_labubuldore: { x: SAGE_SPOT.x - 0.9, z: SAGE_SPOT.z + 3.2, yaw: Math.atan2(-0.9, 3.2) },
     ...Object.fromEntries(SLOTS.map((s) => [s.spawnId, s.spawn])),
   }
   SPAWN = pickSpawn(SPAWNS)
   for (const s of SLOTS) names[s.id] = s.name
 }
+
+// Labubuldore stands southeast of the fountain beside his pedestal, turned toward the default spawn
+export const SAGE_SPOT = { x: 2.6, z: 3.2, r: 0.45 }
+SAGE_SPOT.rot = Math.atan2(0 - SAGE_SPOT.x, 5.5 - SAGE_SPOT.z)
+export const PEDESTAL_SPOT = { x: 1.35, z: 3.0, r: 0.6 }
 
 // stay on the plaza and out of the fountain
 export function collide(pos) {
@@ -40,10 +47,22 @@ export function collide(pos) {
     pos.x *= min / r
     pos.z *= min / r
   }
+  // and out of Labubuldore and his pedestal
+  for (const o of [SAGE_SPOT, PEDESTAL_SPOT]) {
+    const dx = pos.x - o.x
+    const dz = pos.z - o.z
+    const d = Math.hypot(dx, dz)
+    const rr = R_PLAYER + o.r
+    if (d < rr && d > 1e-6) {
+      pos.x = o.x + (dx / d) * rr
+      pos.z = o.z + (dz / d) * rr
+    }
+  }
   return pos
 }
 
 export function locate(x, z) {
+  if (Math.hypot(x - SAGE_SPOT.x, z - SAGE_SPOT.z) < 2.4) return `${NAME} · with Labubuldore`
   let best = null
   for (const s of SLOTS) {
     const d = Math.hypot(x - s.x, z - s.z)

@@ -2,10 +2,15 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import Portal from './Portal.jsx'
-import { FOUNTAIN_R, PLAZA_R, RING_R, SLOTS, names, arrival } from './layout.js'
+import { FOUNTAIN_R, PEDESTAL_SPOT, PLAZA_R, RING_R, SAGE_SPOT, SLOTS, names, arrival } from './layout.js'
+import Labubuldore, { Pedestal } from './sage/Labubuldore.jsx'
+import { updateCatalog } from './sage/catalog.js'
 import { NAME } from './ring.js'
 
 const CYL = new THREE.CylinderGeometry(1, 1, 1, 40)
+
+// shorten long text at a word boundary
+const clip = (s, n) => (s.length <= n ? s : `${s.slice(0, s.lastIndexOf(' ', n))}…`)
 const SPH = new THREE.SphereGeometry(1, 20, 14)
 
 function canvasTex(w, h, draw) {
@@ -179,13 +184,14 @@ function Furniture() {
   )
 }
 
-export default function World() {
+export default function World({ talking = false, onTalk }) {
   // fetch every world's manifest: a portal if it loads, a dim "offline" frame if not
   const [state, setState] = useState(() => Object.fromEntries(SLOTS.map((s) => [s.id, 'loading'])))
   const [, bump] = useState(0)
   useEffect(() => {
     let live = true
     for (const s of SLOTS) {
+      updateCatalog(s.id, { id: s.id, name: s.name, address: s.address, owner: s.owner, status: 'loading' })
       fetch(new URL('.well-known/metaverse.json', s.address), { signal: AbortSignal.timeout(6000) })
         .then((r) => (r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`))))
         .then((m) => {
@@ -194,9 +200,19 @@ export default function World() {
           // land in front of the world's own portal back here when it has one (PROTOCOL.md section 7)
           arrival[s.id] = m.spawns && 'from_square' in m.spawns ? 'from_square' : 'default'
           setState((v) => ({ ...v, [s.id]: 'ok' }))
+          updateCatalog(s.id, {
+            name: names[s.id],
+            description: typeof m.description === 'string' ? clip(m.description, 200) : '',
+            arrival: arrival[s.id],
+            status: 'ok',
+          })
           bump((n) => n + 1)
         })
-        .catch(() => live && setState((v) => ({ ...v, [s.id]: 'offline' })))
+        .catch(() => {
+          if (!live) return
+          setState((v) => ({ ...v, [s.id]: 'offline' }))
+          updateCatalog(s.id, { status: 'offline' })
+        })
     }
     return () => {
       live = false
@@ -227,6 +243,10 @@ export default function World() {
 
       <Fountain />
       <Furniture />
+
+      {/* Labubuldore, keeper of the portals, and his pedestal with the floating list of worlds */}
+      <Labubuldore position={[SAGE_SPOT.x, 0, SAGE_SPOT.z]} rotation={SAGE_SPOT.rot} talking={talking} onTalk={onTalk} />
+      <Pedestal position={[PEDESTAL_SPOT.x, 0, PEDESTAL_SPOT.z]} rotation={SAGE_SPOT.rot} />
 
       {SLOTS.map((s) =>
         state[s.id] === 'ok' ? (
