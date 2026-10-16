@@ -236,7 +236,7 @@ export default function World({ talking = false, onTalk }) {
         <circleGeometry args={[PLAZA_R, 96]} />
         <meshStandardMaterial map={paver} roughness={0.9} />
       </mesh>
-      <mesh position={[0, 0.2, 0]}>
+      <mesh position={[0, 0.2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <torusGeometry args={[PLAZA_R, 0.2, 8, 96]} />
         <meshStandardMaterial color="#d8d2c6" />
       </mesh>
