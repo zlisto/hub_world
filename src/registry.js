@@ -11,7 +11,9 @@ const usable = (w) =>
 
 export async function loadRegistry() {
   try {
-    const res = await fetch(LIVE, { cache: 'no-cache', signal: AbortSignal.timeout(2500) })
+    // GitHub caches raw files for up to 5 minutes per address; a value that changes each minute in the
+    // query string gets a fresh copy, so new worlds appear within about a minute of being merged
+    const res = await fetch(`${LIVE}?minute=${Math.floor(Date.now() / 60000)}`, { cache: 'no-cache', signal: AbortSignal.timeout(2500) })
     const live = await res.json()
     const worlds = (live.worlds ?? []).filter(usable).map((w) => ({ ...w, name: w.name.slice(0, 40) }))
     if (worlds.length) return { ...live, worlds }
