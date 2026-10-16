@@ -14,9 +14,57 @@
       "owner": "zlisto"
     },
     {
+      "id": "hpa_office",
+      "name": "HPA Office",
+      "address": "https://baggs99.github.io/som-explore/office.html",
+      "owner": "Baggs99"
+    },
+    {
       "id": "starter_world",
       "name": "Starter World",
       "address": "https://zlisto.github.io/world_starter/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "great_pyramid",
+      "name": "Great Pyramid of Giza",
+      "address": "https://zlisto.github.io/great-pyramid-of-giza/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "hanging_gardens",
+      "name": "Hanging Gardens of Babylon",
+      "address": "https://zlisto.github.io/hanging-gardens-of-babylon/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "statue_of_zeus",
+      "name": "Statue of Zeus at Olympia",
+      "address": "https://zlisto.github.io/statue-of-zeus-at-olympia/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "temple_of_artemis",
+      "name": "Temple of Artemis at Ephesus",
+      "address": "https://zlisto.github.io/temple-of-artemis-at-ephesus/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "mausoleum",
+      "name": "Mausoleum at Halicarnassus",
+      "address": "https://zlisto.github.io/mausoleum-at-halicarnassus/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "colossus_of_rhodes",
+      "name": "Colossus of Rhodes",
+      "address": "https://zlisto.github.io/colossus-of-rhodes/",
+      "owner": "zlisto"
+    },
+    {
+      "id": "lighthouse_of_alexandria",
+      "name": "Lighthouse of Alexandria",
+      "address": "https://zlisto.github.io/lighthouse-of-alexandria/",
       "owner": "zlisto"
     },
     {
