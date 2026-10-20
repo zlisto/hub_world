@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import Portal from './Portal.jsx'
-import { FOUNTAIN_R, PEDESTAL_SPOT, PLAZA_R, RING_R, SAGE_SPOT, SLOTS, names, arrival } from './layout.js'
+import { FEATURED, FOUNTAIN_R, PEDESTAL_SPOT, PLAZA_R, RING_R, SAGE_SPOT, SLOTS, names, arrival } from './layout.js'
 import Labubuldore, { Pedestal } from './sage/Labubuldore.jsx'
 import { updateCatalog } from './sage/catalog.js'
 import { NAME } from './ring.js'
@@ -247,6 +247,8 @@ export default function World({ talking = false, onTalk }) {
       {/* Labubuldore, keeper of the portals, and his pedestal with the floating list of worlds */}
       <Labubuldore position={[SAGE_SPOT.x, 0, SAGE_SPOT.z]} rotation={SAGE_SPOT.rot} talking={talking} onTalk={onTalk} />
       <Pedestal position={[PEDESTAL_SPOT.x, 0, PEDESTAL_SPOT.z]} rotation={SAGE_SPOT.rot} />
+      {/* the featured world: a gold portal in view as you arrive */}
+      <Portal x={FEATURED.x} z={FEATURED.z} rot={FEATURED.rot} href={FEATURED.href} spawn={FEATURED.spawn} back={FEATURED.back} label={FEATURED.label} sub={FEATURED.sub} color="#ffb347" />
 
       {SLOTS.map((s) =>
         state[s.id] === 'ok' ? (

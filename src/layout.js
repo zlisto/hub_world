@@ -24,11 +24,27 @@ export function initLayout(registry) {
     default: { x: 0, z: 5.5, yaw: 0 },
     // in front of Labubuldore, facing him: Back from a world he sent you to lands you here
     by_labubuldore: { x: SAGE_SPOT.x - 0.9, z: SAGE_SPOT.z + 3.2, yaw: Math.atan2(-0.9, 3.2) },
+    // in front of the featured portal, facing away from it: Back from the featured world lands here
+    by_featured: { x: FEATURED.x + Math.sin(FEATURED.rot) * 2.4, z: FEATURED.z + Math.cos(FEATURED.rot) * 2.4, yaw: FEATURED.rot + Math.PI },
     ...Object.fromEntries(SLOTS.map((s) => [s.spawnId, s.spawn])),
   }
   SPAWN = pickSpawn(SPAWNS)
   for (const s of SLOTS) names[s.id] = s.name
 }
+
+// A featured world with its own gold portal just northwest of where you arrive, in view as you walk
+// in (it also keeps its usual portal in the ring). Swap these fields to feature another world.
+export const FEATURED = {
+  id: 'dublin_dash',
+  label: 'Dublin Dash',
+  sub: 'featured · Dublin, Ohio',
+  href: 'https://hudsonozello-student.github.io/Dublin-Dash/',
+  spawn: 'from_square',
+  back: 'by_featured',
+  x: -3.5,
+  z: 0,
+}
+FEATURED.rot = Math.atan2(0 - FEATURED.x, 5.5 - FEATURED.z) // faces the default spawn
 
 // Labubuldore stands southeast of the fountain beside his pedestal, turned toward the default spawn
 export const SAGE_SPOT = { x: 2.6, z: 3.2, r: 0.45 }
@@ -63,6 +79,7 @@ export function collide(pos) {
 
 export function locate(x, z) {
   if (Math.hypot(x - SAGE_SPOT.x, z - SAGE_SPOT.z) < 2.4) return `${NAME} · with Labubuldore`
+  if (Math.hypot(x - FEATURED.x, z - FEATURED.z) < 2.6) return `${NAME} · by the featured portal to ${FEATURED.label}`
   let best = null
   for (const s of SLOTS) {
     const d = Math.hypot(x - s.x, z - s.z)
