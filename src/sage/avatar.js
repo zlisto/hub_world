@@ -26,10 +26,12 @@ const angleTo = (from, to) => Math.atan2(Math.sin(to - from), Math.cos(to - from
 // Registers the avatar for the crosshair and drives the shared motion: idle scanning, turning to
 // face you while you chat, and looking up at your eyes. Returns refs for root and head, plus
 // `gesture`, a ref that is 1 while talking (for arm animation in the avatar's own useFrame).
-export function useTalker(slug, { position, rotation, talking, headY = 1.62 }) {
+// watch: turn to face the visitor whenever they're within `watch` meters, not only while talking
+export function useTalker(slug, { position, rotation, talking, headY = 1.62, watch = 0 }) {
   const root = useRef()
   const head = useRef()
   const yaw = useRef(rotation)
+  const first = useRef(true)
   const gesture = useRef(0)
   const here = useMemo(() => new THREE.Vector3(), [])
 
@@ -43,7 +45,12 @@ export function useTalker(slug, { position, rotation, talking, headY = 1.62 }) {
     const r = root.current
     r.getWorldPosition(here)
     let target = rotation + Math.sin(t * 0.4) * 0.35 // idle: scanning the room
-    if (talking) target = Math.atan2(camera.position.x - here.x, camera.position.z - here.z)
+    const near = watch && Math.hypot(camera.position.x - here.x, camera.position.z - here.z) < watch
+    if (talking || near) target = Math.atan2(camera.position.x - here.x, camera.position.z - here.z)
+    if (first.current) {
+      first.current = false
+      if (near) yaw.current = target // already facing you when you arrive, no turn-around
+    }
     yaw.current += angleTo(yaw.current, target) * Math.min(1, dt * (talking ? 5 : 2))
     r.rotation.y = yaw.current
     r.position.y = position[1] + Math.sin(t * 2.2) * 0.006 // breathing

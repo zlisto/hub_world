@@ -92,7 +92,7 @@ function Robe() {
 }
 
 export default function Labubuldore({ position = [0, 0, 0], rotation = 0, talking = false, onTalk }) {
-  const { root, head, clickProps } = useTalker(SAGE.slug, { position, rotation, talking, headY: 1.1 * H })
+  const { root, head, clickProps } = useTalker(SAGE.slug, { position, rotation, talking, headY: 1.1 * H, watch: 40 }) // he turns to greet you anywhere in the square
   return (
     <group ref={root} position={position} rotation={[0, rotation, 0]} {...clickProps(onTalk)}>
       <group ref={head} />
